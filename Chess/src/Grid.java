@@ -15,6 +15,7 @@ public class Grid {
 	private boolean pickFirstCell;
 	private boolean isWhite;
 	private ArrayList<Integer> markedMoves;
+	private ArrayList<Integer> attackedSquares;
 	private int eps=-1;
 	private boolean epsTrue=false;
 	private int over;
@@ -23,6 +24,7 @@ public class Grid {
 	public Grid(){
 		images=new PImage[12];
 		markedMoves=new ArrayList<Integer>();
+		attackedSquares=new ArrayList<Integer>();
 		pickFirstCell=false;
 		board=new char[8][8];
 		for(int i=0;i<8;i++)
@@ -54,7 +56,7 @@ public class Grid {
 		
 		
 		
-		
+		attackedSquares=new ArrayList<Integer>();
 		markedMoves=new ArrayList<Integer>();
 		pickFirstCell=true;
 		board=new char[8][8];
