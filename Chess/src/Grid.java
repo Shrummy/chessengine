@@ -276,9 +276,39 @@ public class Grid {
 		int a=i;
 		int b=j;
 		boolean stop=false;
-		//while(a>0&&!stop)
-		//{
-		//}
+		while(a>0&&!stop)
+		{
+			a--;
+			if(board[a][b]=='_')
+				s.add(a+""+b);
+			else if(Character.isUpperCase(board[a][b])!=isWhite)
+			{
+				s.add(a+""+b);
+				stop=true;
+			}
+			else
+				stop=true;
+		}
+		a=i;
+		while(a<8&&!stop)
+		{
+			a++;
+			if(board[a][b]=='_')
+				s.add(a+""+b);
+			else if(Character.isUpperCase(board[a][b])!=isWhite)
+			{
+				s.add(a+""+b);
+				stop=true;
+			}
+			else
+				stop=true;
+		}
+		
+		
+		
+		
+		
+		
 		return s;
 	}
 	
