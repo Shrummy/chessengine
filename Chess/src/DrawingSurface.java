@@ -18,7 +18,7 @@ public class DrawingSurface extends PApplet {
 	
 	
 	public DrawingSurface() {
-		board = new Grid("data/initial.txt");
+		board = new Grid();
 		runCount = -1;
 		speed = 120;
 		prevToggle = null;
@@ -27,6 +27,7 @@ public class DrawingSurface extends PApplet {
 	// The statements in the setup() function 
 	// execute once when the program begins
 	public void setup() {
+		board = new Grid("data/initial.txt",this);
 		//size(0,0,PApplet.P3D);
 	}
 	
@@ -35,7 +36,7 @@ public class DrawingSurface extends PApplet {
 	// sequence and after the last line is read, the first 
 	// line is executed again.
 	public void draw() { 
-		background(255);   // Clear the screen with a white background
+		image(loadImage("lib/board.png"), 0, 0,Math.min(width*7f/8,height),Math.min(width*7f/8,height));
 		fill(255);
 		textAlign(CENTER);
 		textSize(12);
@@ -69,11 +70,8 @@ public class DrawingSurface extends PApplet {
 			float dimension = Math.min(width,height);
 			Point cellCoord = board.clickToIndex(click,0,0,dimension,dimension);
 			if (cellCoord != null && !cellCoord.equals(prevToggle)) 
-			{
-				if(board.getPickFirstCell());
-				{
-					board.toggleCell(cellCoord.x, cellCoord.y,board.isWhite());
-				}
+			{	
+				board.toggleCell(cellCoord.x, cellCoord.y,board.isWhite());
 			}
 		} 
 	}
