@@ -7,16 +7,21 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 
 public class Grid {
+	private PImage[] images;
 	private char[][] board;
 	private boolean pickFirstCell;
 	private boolean isWhite;
 	private ArrayList<Integer> markedMoves;
+	private int eps=-1;
+	private boolean epsTrue=false;
 	private int over;
 	private int this1, this2;
 	private int temp1, temp2;
 	public Grid(){
+		images=new PImage[12];
 		markedMoves=new ArrayList<Integer>();
 		pickFirstCell=false;
 		board=new char[8][8];
@@ -30,7 +35,26 @@ public class Grid {
 		isWhite=true;
 		over=0;
 	}
-	public Grid(String filename){
+	public Grid(String filename, PApplet drawer){
+		images=new PImage[12];
+		
+		images[0]=drawer.loadImage("lib/pieces/black/blackpawn.png");
+		images[1]=drawer.loadImage("lib/pieces/black/blackknight.png");
+		images[2]=drawer.loadImage("lib/pieces/black/blackbishop.png");
+		images[3]=drawer.loadImage("lib/pieces/black/blackrook.png");
+		images[4]=drawer.loadImage("lib/pieces/black/blackqueen.png");
+		images[5]=drawer.loadImage("lib/pieces/black/blackking.png");
+		
+		images[6]=drawer.loadImage("lib/pieces/white/whitepawn.png");
+		images[7]=drawer.loadImage("lib/pieces/white/whiteknight.png");
+		images[8]=drawer.loadImage("lib/pieces/white/whitebishop.png");
+		images[9]=drawer.loadImage("lib/pieces/white/whiterook.png");
+		images[10]=drawer.loadImage("lib/pieces/white/whitequeen.png");
+		images[11]=drawer.loadImage("lib/pieces/white/whiteking.png");
+		
+		
+		
+		
 		markedMoves=new ArrayList<Integer>();
 		pickFirstCell=true;
 		board=new char[8][8];
@@ -92,54 +116,67 @@ public class Grid {
 			throw new IllegalArgumentException("Data file " + filename + " does not exist.");
 		}
     }
-	
-	public void invert()
-	{
-		for(int i1=0;i1<5;i1++)
-		{
-			for(int i2=0;i2<8;i2++)
-			{
-				char c = board[i1][i2];
-				board[i1][i2]=board[8-i1][i2];
-				board[8-i1][i2]=c;
-			}
-		}
-	}
+
 	
 	public void draw(PApplet marker, float x, float y, float width, float height) 
 	{	
-		float cellWidth=(float)width/(board[0].length);
-		float cellHeight=(float)height/board.length;
+		float cellWidth=85;
+		float cellHeight=85;
 		marker.stroke(0);
+		
+		
+		
+		
 		
 		
 		for(int row=0;row<board.length;row++)
 		{
 			for(int col=0;col<board[0].length;col++)
 			{
-				if((row+col)%2==0)
-					marker.fill(100,100,100);
-				else
-					marker.fill(240,0,0);
-       			marker.rect(x+col*cellWidth,y+row*cellHeight,cellWidth,cellHeight);
+				
        			if(pickFirstCell&&row==temp1&&col==temp2&&isWhite==Character.isUpperCase(board[row][col]))
        			{
        				this1=temp1;
        				this2=temp2;
-       				marker.fill(5);
-					marker.textSize(cellWidth);
-					marker.text(board[row][col],x+(col+0.5f)*cellWidth,y+(row+1)*cellHeight);
+
        			}
        			
-       			else if(board[row][col]!='_')
+       			if(board[row][col]!='_')
 				{
        				if(Character.isUpperCase(board[row][col]))
        					marker.fill(255);
        				else
        					marker.fill(0);
-					marker.textSize(cellWidth);
-					marker.text(board[row][col],x+(col+0.5f)*cellWidth,y+(row+1)*cellHeight);
+					
+       				float xt=x+(col+0.5f)*cellWidth-32-10;
+       				float yt=y+(row+0.5f)*cellHeight-32-10;
+       				
+					if(board[row][col]=='p')
+						marker.image(images[0], xt, yt, cellWidth,cellHeight);
+					else if(board[row][col]=='n')
+						marker.image(images[1], xt, yt,cellWidth,cellHeight);
+					else if(board[row][col]=='b')
+						marker.image(images[2], xt, yt,cellWidth,cellHeight);
+					else if(board[row][col]=='r')
+						marker.image(images[3], xt, yt,cellWidth,cellHeight);
+					else if(board[row][col]=='q')
+						marker.image(images[4],xt,yt,cellWidth,cellHeight);
+					else if(board[row][col]=='k')
+						marker.image(images[5], xt, yt,cellWidth,cellHeight);
+					else if(board[row][col]=='P')
+						marker.image(images[6], xt, yt,cellWidth,cellHeight);
+					else if(board[row][col]=='N')
+						marker.image(images[7], xt, yt,cellWidth,cellHeight);
+					else if(board[row][col]=='B')
+						marker.image(images[8], xt, yt,cellWidth,cellHeight);
+					else if(board[row][col]=='R')
+						marker.image(images[9], xt, yt,cellWidth,cellHeight);
+					else if(board[row][col]=='Q')
+						marker.image(images[10], xt, yt,cellWidth,cellHeight);
+					else if(board[row][col]=='K')
+						marker.image(images[11], xt, yt,cellWidth,cellHeight);
 				}
+			
 			}
 			for(int i=0;i<markedMoves.size()-1;i++)
 			{
@@ -172,6 +209,31 @@ public class Grid {
 					{
 						board[k][j]=board[this1][this2];
 						board[this1][this2]='_';
+						eps=-1;
+						
+						if(isWhite)
+						{
+							if(this1==6&&k==4&&board[k][j]=='P')
+							{
+								eps=j;
+							}
+							if(epsTrue)
+							{
+								board[k+1][j]='_';
+							}
+						}
+						else
+						{
+							if(this1==1&&k==3&&board[k][j]=='p')
+							{
+								eps=j;
+							}
+							if(epsTrue)
+							{
+								board[k-1][j]='_';
+							}
+						}
+						epsTrue=false;
 						isWhite=!isWhite;
 					}
 				}
@@ -206,18 +268,17 @@ public class Grid {
 			}
 		}
 		
-		//regular move and white
+		//regular move
 		if(i>0&&board[i-1][j]=='_'&&isWhite)
 		{
 			s.add((i-1)+""+j);
 		}
-		//regular move and black
 		else if(i<7&&board[i+1][j]=='_'&&!isWhite)
 		{
 			s.add((i+1)+""+j);
 		}
 		
-		//captures left and white
+		//captures left
 		if(j>0&& i>0&& board[i-1][j-1]!='_'&&(Character.isUpperCase(board[i-1][j-1])!=isWhite)&&isWhite)
 		{
 			s.add((i-1)+""+(j-1));
@@ -227,7 +288,7 @@ public class Grid {
 			s.add((i+1)+""+(j-1));
 		}
 		
-		//captures right and white
+		//captures right
 		if(j<7&& i>0 && board[i-1][j+1]!='_'&&(Character.isUpperCase(board[i-1][j+1])!=isWhite)&&isWhite)
 		{
 			s.add((i-1)+""+(j+1));
@@ -236,6 +297,36 @@ public class Grid {
 		{
 			s.add((i+1)+""+(j+1));
 		}
+		
+		//en passant left
+		
+		if(i==3&&j>0&& board[2][j-1]=='_'&&eps==j-1&&isWhite)
+		{
+			s.add((i-1)+""+(j-1));
+			epsTrue=true;
+		}
+		else if(i==4&&j>0&& board[5][j-1]=='_'&&eps==j-1&&!isWhite)
+		{
+			s.add((i+1)+""+(j-1));
+			epsTrue=true;
+		}
+		
+		
+		//en passant right
+		
+		if(i==3&&j<7&& board[2][j+1]=='_'&&eps==j+1&&isWhite)
+		{
+			s.add((i-1)+""+(j+1));
+			epsTrue=true;
+		}
+		else if(i==4&&j<7&& board[5][j+1]=='_'&&eps==j+1&&!isWhite)
+			{
+				s.add((i+1)+""+(j+1));
+				epsTrue=true;
+			}
+		
+		
+		
 		return s;	
 	}
 	
@@ -289,8 +380,9 @@ public class Grid {
 			else
 				stop=true;
 		}
+		stop=false;
 		a=i;
-		while(a<8&&!stop)
+		while(a<7&&!stop)
 		{
 			a++;
 			if(board[a][b]=='_')
@@ -303,30 +395,159 @@ public class Grid {
 			else
 				stop=true;
 		}
+		stop=false;
+		a=i;
+		while(b>0&&!stop)
+		{
+			b--;
+			if(board[a][b]=='_')
+				s.add(a+""+b);
+			else if(Character.isUpperCase(board[a][b])!=isWhite)
+			{
+				s.add(a+""+b);
+				stop=true;
+			}
+			else
+				stop=true;
+		}
+		stop=false;
+		b=j;
+		while(b<7&&!stop)
+		{
+			b++;
+			if(board[a][b]=='_')
+				s.add(a+""+b);
+			else if(Character.isUpperCase(board[a][b])!=isWhite)
+			{
+				s.add(a+""+b);
+				stop=true;
+			}
+			else
+				stop=true;
+		}
 		
+
 		
-		
-		
-		
-		
+		return s;
+	}
+	
+	public ArrayList<String> getBishopMoves(boolean isWhite,int i,int j)
+	{
+		ArrayList<String> s=new ArrayList<String>();
+		int a=i;
+		int b=j;
+		boolean stop=false;
+		while(a<7&&b>0&&!stop)
+		{
+			a++;
+			b--;
+			if(board[a][b]=='_')
+				s.add(a+""+b);
+			else if(Character.isUpperCase(board[a][b])!=isWhite)
+			{
+				s.add(a+""+b);
+				stop=true;
+			}
+			else
+				stop=true;
+		}
+		a=i;
+		b=j;
+		stop=false;
+		while(a<7&&b<7&&!stop)
+		{
+			a++;
+			b++;
+			if(board[a][b]=='_')
+				s.add(a+""+b);
+			else if(Character.isUpperCase(board[a][b])!=isWhite)
+			{
+				s.add(a+""+b);
+				stop=true;
+			}
+			else
+				stop=true;
+		}
+		a=i;
+		b=j;
+		stop=false;
+		while(a>0&&b>0&&!stop)
+		{
+			a--;
+			b--;
+			if(board[a][b]=='_')
+				s.add(a+""+b);
+			else if(Character.isUpperCase(board[a][b])!=isWhite)
+			{
+				s.add(a+""+b);
+				stop=true;
+			}
+			else
+				stop=true;
+		}
+		a=i;
+		b=j;
+		stop=false;
+		while(a>0&&b<7&&!stop)
+		{
+			a--;
+			b++;
+			if(board[a][b]=='_')
+				s.add(a+""+b);
+			else if(Character.isUpperCase(board[a][b])!=isWhite)
+			{
+				s.add(a+""+b);
+				stop=true;
+			}
+			else
+				stop=true;
+		}
 		return s;
 	}
 	
 	
 	
+	public ArrayList<String> getQueenMoves(boolean isWhite,int i,int j)
+	{
+		ArrayList<String> s = getBishopMoves(isWhite,i,j);
+		s.addAll(getRookMoves(isWhite,i,j));
+		return s;
+	}
+	public ArrayList<String> getKingMoves(boolean isWhite,int i,int j)
+	{
+		ArrayList<String> s = new ArrayList<String>();
+		if(i>0&&j>0&&(board[i-1][j-1]=='_'||Character.isUpperCase(board[i-1][j-1])!=isWhite))
+			s.add((i-1)+""+(j-1));
+		
+		if(i>0&&(board[i-1][j]=='_'||Character.isUpperCase(board[i-1][j])!=isWhite))
+			s.add((i-1)+""+j);
+		
+		if(i>0&&j<7&&(board[i-1][j+1]=='_'||Character.isUpperCase(board[i-1][j+1])!=isWhite))
+			s.add((i-1)+""+(j+1));
+		
+		
+		if(i<7&&j>0&&(board[i+1][j-1]=='_'||Character.isUpperCase(board[i+1][j-1])!=isWhite))
+			s.add((i+1)+""+(j-1));
+		
+		if(i<7&&(board[i+1][j]=='_'||Character.isUpperCase(board[i+1][j])!=isWhite))
+			s.add((i+1)+""+j);
+		
+		if(i<7&&j<7&&(board[i+1][j+1]=='_'||Character.isUpperCase(board[i+1][j+1])!=isWhite))
+			s.add((i+1)+""+(j+1));
+		
+		if(j>0&&(board[i][j-1]=='_'||Character.isUpperCase(board[i][j-1])!=isWhite))
+			s.add(i+""+(j-1));
+		
+		if(j<7&&(board[i][j+1]=='_'||Character.isUpperCase(board[i][j+1])!=isWhite))
+			s.add(i+""+(j+1));
+		
+		return s;
+	}
 	
 	public void toggleCell(int i, int j, boolean isWhiteturn) 
 	{
 		temp1=i;
 		temp2=j;
-		/*if(isWhiteturn)
-		{
-			markedMoves=getPawnMoves(isWhiteturn,temp1,temp2);
-		}
-		else
-		{
-			markedMoves=getPawnMoves(isWhiteturn,temp1,temp2);
-		}*/
 		if(pickFirstCell)
 		{
 			if(board[i][j]=='P'&&isWhite)
@@ -341,6 +562,42 @@ public class Grid {
 			else if(board[i][j]=='N'&&isWhite)
 			{
 				for(String s:getKnightMoves(true,temp1,temp2))
+				{
+					int n = Integer.parseInt(s);
+					markedMoves.add(n/10);
+					markedMoves.add(n%10);
+				}
+			}
+			else if(board[i][j]=='B'&&isWhite)
+			{
+				for(String s:getBishopMoves(true,temp1,temp2))
+				{
+					int n = Integer.parseInt(s);
+					markedMoves.add(n/10);
+					markedMoves.add(n%10);
+				}
+			}
+			else if(board[i][j]=='R'&&isWhite)
+			{
+				for(String s:getRookMoves(true,temp1,temp2))
+				{
+					int n = Integer.parseInt(s);
+					markedMoves.add(n/10);
+					markedMoves.add(n%10);
+				}
+			}
+			else if(board[i][j]=='Q'&&isWhite)
+			{
+				for(String s:getQueenMoves(true,temp1,temp2))
+				{
+					int n = Integer.parseInt(s);
+					markedMoves.add(n/10);
+					markedMoves.add(n%10);
+				}
+			}
+			else if(board[i][j]=='K'&&isWhite)
+			{
+				for(String s:getKingMoves(true,temp1,temp2))
 				{
 					int n = Integer.parseInt(s);
 					markedMoves.add(n/10);
@@ -365,6 +622,42 @@ public class Grid {
 					markedMoves.add(n%10);
 				}
 			}
+			else if(board[i][j]=='b'&&!isWhite)
+			{
+				for(String s:getBishopMoves(false,temp1,temp2))
+				{
+					int n = Integer.parseInt(s);
+					markedMoves.add(n/10);
+					markedMoves.add(n%10);
+				}
+			}
+			else if(board[i][j]=='r'&&!isWhite)
+			{
+				for(String s:getRookMoves(false,temp1,temp2))
+				{
+					int n = Integer.parseInt(s);
+					markedMoves.add(n/10);
+					markedMoves.add(n%10);
+				}
+			}
+			else if(board[i][j]=='q'&&!isWhite)
+			{
+				for(String s:getQueenMoves(false,temp1,temp2))
+				{
+					int n = Integer.parseInt(s);
+					markedMoves.add(n/10);
+					markedMoves.add(n%10);
+				}
+			}
+			else if(board[i][j]=='k'&&!isWhite)
+			{
+				for(String s:getKingMoves(false,temp1,temp2))
+				{
+					int n = Integer.parseInt(s);
+					markedMoves.add(n/10);
+					markedMoves.add(n%10);
+				}
+			}
 			else
 			{
 		
@@ -372,6 +665,7 @@ public class Grid {
 				markedMoves=new ArrayList<Integer>();
 			}
 		}
+		
 		/*else
 		{
 			markedMoves=new ArrayList<Integer>();
@@ -472,10 +766,6 @@ public class Grid {
 			}
 		}*/
 	}
-	
-	
-	
-	
 	
 	
 	
