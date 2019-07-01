@@ -28,6 +28,10 @@ public class DrawingSurface extends PApplet {
 	// execute once when the program begins
 	public void setup() {
 		board = new Grid("data/initial.txt",this);
+		board.move("e4");
+		board.move("e5");
+		board.move("d4");
+		board.move("d5");
 		//size(0,0,PApplet.P3D);
 	}
 	
@@ -40,7 +44,7 @@ public class DrawingSurface extends PApplet {
 		fill(255);
 		textAlign(CENTER);
 		textSize(12);
-			board.step();
+			//board.step();
 			runCount = speed;
 		
 		if (board != null) {
@@ -90,7 +94,7 @@ public class DrawingSurface extends PApplet {
 			speed = Math.max(15, speed/2);
 			runCount = Math.min(runCount, speed);
 		} else if (keyCode == KeyEvent.VK_ENTER) {
-			board.step();
+			//board.step();
 		}
 	}
 

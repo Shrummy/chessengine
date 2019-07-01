@@ -16,8 +16,11 @@ public class Grid {
 	private boolean isWhite;
 	private ArrayList<Integer> markedMoves;
 	private ArrayList<Integer> attackedSquares;
+	
 	private int eps=-1;
 	private boolean epsTrue=false;
+	private boolean WcastleK, WcastleQ;
+	private boolean BcastleK, BcastleQ;
 	private int over;
 	private int this1, this2;
 	private int temp1, temp2;
@@ -26,6 +29,7 @@ public class Grid {
 		markedMoves=new ArrayList<Integer>();
 		attackedSquares=new ArrayList<Integer>();
 		pickFirstCell=false;
+		eps=-1;
 		board=new char[8][8];
 		for(int i=0;i<8;i++)
 		{
@@ -37,6 +41,93 @@ public class Grid {
 		isWhite=true;
 		over=0;
 	}
+	public Grid(String filename)
+	{
+		eps=-1;
+
+		WcastleK=true;
+		WcastleQ=true;
+		BcastleK=true;
+		BcastleQ=true;
+		
+		attackedSquares=new ArrayList<Integer>();
+		markedMoves=new ArrayList<Integer>();
+		pickFirstCell=true;
+		board=new char[8][8];
+		for(int i=0;i<8;i++)
+		{
+			for(int j=0;j<8;j++)
+			{
+				board[i][j]='_';
+			}
+		}
+		readData(filename,board);
+		isWhite=true;
+		over=0;
+	}
+	
+	public String isLegalMove(String s)
+	{
+		char c0 = s.charAt(0);
+		char c1 = s.charAt(1);
+		
+		//pawn moves
+		if(!Character.isUpperCase(c0))
+		{
+			
+			if(c1!='x')
+			{
+				int x = ((int)c0-97);
+				int y=8-Integer.parseInt(c1+"");
+				
+				String t = (10*y+x)+"";
+				for(int row=0;row<7;row++)
+				{
+					for(int col=0;col<7;col++)
+					{
+						if(board[row][col]=='P'&&isWhite)
+						{
+							for(String r:getPawnMoves(true,row,col))
+							{
+								
+								if(r.equals(t))
+									return "YES"+row+col+y+x;
+							}
+						}
+						else if(board[row][col]=='p'&&!isWhite)
+						{
+							for(String r:getPawnMoves(false,row,col))
+							{
+								if(r.equals(t))
+									return "YES"+row+col+y+x;
+							}
+						}
+					}
+				}
+			}
+		}
+		return "NOPE";
+	}
+	
+	public void move(String s)
+	{
+		String t = isLegalMove(s);
+		if(t.substring(0, 3).equals("YES"))
+		{
+			int x = Integer.parseInt(t.substring(3,4));
+			int y = Integer.parseInt(t.substring(4,5));
+			int z = Integer.parseInt(t.substring(5,6));
+			int w = Integer.parseInt(t.substring(6,7));
+			char c = board[x][y];
+			board[x][y]=board[z][w];
+			board[z][w]=c;
+			isWhite=!isWhite;
+		}
+	}
+	
+	
+	
+	
 	public Grid(String filename, PApplet drawer){
 		images=new PImage[12];
 		
@@ -54,7 +145,12 @@ public class Grid {
 		images[10]=drawer.loadImage("lib/pieces/white/whitequeen.png");
 		images[11]=drawer.loadImage("lib/pieces/white/whiteking.png");
 		
-		
+		eps=-1;
+
+		WcastleK=true;
+		WcastleQ=true;
+		BcastleK=true;
+		BcastleQ=true;
 		
 		attackedSquares=new ArrayList<Integer>();
 		markedMoves=new ArrayList<Integer>();
@@ -212,7 +308,6 @@ public class Grid {
 						board[k][j]=board[this1][this2];
 						board[this1][this2]='_';
 						eps=-1;
-						
 						if(isWhite)
 						{
 							if(this1==6&&k==4&&board[k][j]=='P')
@@ -223,6 +318,7 @@ public class Grid {
 							{
 								board[k+1][j]='_';
 							}
+							
 						}
 						else
 						{
@@ -776,11 +872,7 @@ public class Grid {
 	{
 		return board[row][col];
 	}
-	
-	public void step()
-	{
-		
-	}
+
 	
 	
 	
