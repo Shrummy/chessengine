@@ -30,8 +30,18 @@ public class DrawingSurface extends PApplet {
 		board = new Grid("data/initial.txt",this);
 		board.move("e4");
 		board.move("e5");
+		board.move("Nf3");
+		board.move("d6");
 		board.move("d4");
-		board.move("d5");
+		board.move("Bg4");
+		board.move("dxe5");
+		//board.move("Bxf3");
+		//board.move("Qxf3");
+		//board.move("dxe5");
+		/*board.move("h5");
+		board.move("Bc4");
+		board.move("Rh7");
+		board.move("Qxf7");*/
 		//size(0,0,PApplet.P3D);
 	}
 	
