@@ -66,6 +66,7 @@ public class Grid {
 		over=0;
 	}
 	
+	//PRINTS OUT YES initx inity laterx latery
 	public String isLegalMove(String s)
 	{
 		char c0 = s.charAt(0);
@@ -74,38 +75,139 @@ public class Grid {
 		//pawn moves
 		if(!Character.isUpperCase(c0))
 		{
-			
 			if(c1!='x')
 			{
 				int x = ((int)c0-97);
 				int y=8-Integer.parseInt(c1+"");
 				
 				String t = (10*y+x)+"";
-				for(int row=0;row<7;row++)
+				for(int row=0;row<8;row++)
 				{
-					for(int col=0;col<7;col++)
-					{
-						if(board[row][col]=='P'&&isWhite)
+					if(board[row][x]=='P'&&isWhite)
 						{
-							for(String r:getPawnMoves(true,row,col))
+							for(String r:getPawnMoves(true,row,x))
 							{
 								
 								if(r.equals(t))
-									return "YES"+row+col+y+x;
+									return "YES"+row+x+y+x;
 							}
 						}
-						else if(board[row][col]=='p'&&!isWhite)
+						else if(board[row][x]=='p'&&!isWhite)
 						{
-							for(String r:getPawnMoves(false,row,col))
+							for(String r:getPawnMoves(false,row,x))
 							{
 								if(r.equals(t))
-									return "YES"+row+col+y+x;
+									return "YES"+row+x+y+x;
 							}
+						}
+				}
+			}
+			//pawn captures
+			else
+			{
+				char c2 = s.charAt(2);
+				char c3 = s.charAt(3);
+				
+				int w = ((int)c2-97);
+				int x = ((int)c0-97);
+				int y=8-Integer.parseInt(c3+"");
+				
+				
+				
+				String t = (10*y+w)+"";
+				
+				
+				
+				
+				for(int row=0;row<8;row++)
+				{
+					for(int col=0;col<8;col++)
+					{
+				
+						if((board[row][col]+"").equalsIgnoreCase("P")&&Character.isUpperCase(board[row][col])==isWhite)
+						{
+							for(String r:getPawnMoves(isWhite,row,col))
+							{
+								if(r.equals(t)&&col==x)
+								{
+									return "YES"+row+col+y+w;
+								}
+							}
+						}
+					}
+				}
+				
+				
+				/*for(int row=0;row<8;row++)
+				{
+					if(board[row][x]=='P'&&isWhite)
+					{
+						for(String r:getPawnMoves(true,row,x))
+						{
+							if(r.equals(t))
+							{
+								return "YES"+row+x+y+w;
+							}
+						}
+					}
+					else if(board[row][x]=='p'&&!isWhite)
+					{
+						System.out.println("BLACK PAWN!");
+						for(String r:getPawnMoves(false,row,x))
+						{
+							if(r.equals(t))
+								return "YES"+row+w+y+x;
+						}
+					}
+				}*/
+				
+			}
+		}
+		//anything else move
+		else
+		{
+			
+			char c2;
+			char c3;
+			int x; 
+			int y;
+
+			
+			if(c1=='x')
+			{
+				c2=s.charAt(2);
+				c3=s.charAt(3);
+				x = ((int)c2-97);
+			    y=8-Integer.parseInt(c3+"");
+				
+			}
+			else
+			{
+				c2=s.charAt(2);
+				x = ((int)c1-97);
+				y=8-Integer.parseInt(c2+"");
+			}
+			
+			String t = (10*y+x)+"";
+			
+			
+			for(int row=0;row<8;row++)
+			{
+				for(int col=0;col<8;col++)
+				{
+			
+					if((board[row][col]+"").equalsIgnoreCase(c0+"")&&Character.isUpperCase(board[row][col])==isWhite)
+					{
+						for(String r:getMoves(c0,isWhite,row,col))
+						{
+							if(r.equals(t))
+								return "YES"+row+col+y+x;
 						}
 					}
 				}
 			}
 		}
+
 		return "NOPE";
 	}
 	
@@ -114,17 +216,64 @@ public class Grid {
 		String t = isLegalMove(s);
 		if(t.substring(0, 3).equals("YES"))
 		{
+			//Normal Move
 			int x = Integer.parseInt(t.substring(3,4));
 			int y = Integer.parseInt(t.substring(4,5));
 			int z = Integer.parseInt(t.substring(5,6));
 			int w = Integer.parseInt(t.substring(6,7));
-			char c = board[x][y];
-			board[x][y]=board[z][w];
-			board[z][w]=c;
+			board[z][w]=board[x][y];
+			board[x][y]='_';
 			isWhite=!isWhite;
+			eps=-1;
 		}
 	}
 	
+	
+	public void game(String s)
+	{
+		
+		for(int i=1;s.indexOf(i+".")>-1;i++)
+		{
+			int a = s.indexOf(i+".");
+			int b = s.indexOf((i+1)+".");
+			if(b>-1)
+			{
+				String r = s.substring(a,b-1);
+				if(i<10)
+					r=r.substring(3);
+				else if(i<100)
+					r=r.substring(4);
+				int c = r.indexOf(" ");
+				if(c>-1)
+				{
+					move(r.substring(0,c));
+					move(r.substring(c+1));
+				}
+				else
+				{
+					move(r);
+				}
+			}
+			else
+			{
+				String r = s.substring(a);
+				if(i<10)
+					r=r.substring(3);
+				else if(i<100)
+					r=r.substring(4);
+				int c = r.indexOf(" ");
+				if(c>-1)
+				{
+					move(r.substring(0,c));
+					move(r.substring(c+1));
+				}
+				else
+				{
+					move(r);
+				}
+			}
+		}
+	}
 	
 	
 	
@@ -222,11 +371,7 @@ public class Grid {
 		float cellHeight=85;
 		marker.stroke(0);
 		
-		
-		
-		
-		
-		
+
 		for(int row=0;row<board.length;row++)
 		{
 			for(int col=0;col<board[0].length;col++)
@@ -339,6 +484,52 @@ public class Grid {
 			markedMoves=new ArrayList<Integer>();
 			pickFirstCell=true;
 			return new Point(k,j);
+		}
+		return null;
+	}
+	
+	public ArrayList<String> getMoves(char c, boolean b, int i, int j)
+	{
+		if(!b)
+		{
+			c=Character.toLowerCase(c);
+			
+		}
+		switch(c)
+		{
+		case 'P':{
+			return getPawnMoves(isWhite,i,j);	
+		}
+		case 'N':{
+			return getKnightMoves(isWhite,i,j);
+		}
+		case 'n':{
+			return getKnightMoves(false,i,j);
+		}
+		case 'B':{
+			return getBishopMoves(true,i,j);
+		}
+		case 'b':{
+			return getBishopMoves(false,i,j);
+		}
+		case 'R':{
+			return getRookMoves(true,i,j);
+		}
+		case 'r':{
+			return getRookMoves(false,i,j);
+		}
+		case 'Q':{
+			return getQueenMoves(true,i,j);
+		}
+		case 'q':{
+			return getQueenMoves(false,i,j);
+		}
+		case 'K':{
+			return getKingMoves(true,i,j);
+		}
+		case 'k':{
+			return getKingMoves(false,i,j);
+		}
 		}
 		return null;
 	}
@@ -763,106 +954,6 @@ public class Grid {
 				markedMoves=new ArrayList<Integer>();
 			}
 		}
-		
-		/*else
-		{
-			markedMoves=new ArrayList<Integer>();
-			pickFirstCell=false;
-		}*/
-	
-		
-		/*
-		if(!pickFirstCell&&board[i][j]!='_')
-		{
-			temp1=i;
-			temp2=j;
-			pickFirstCell=true;
-			System.out.println("NANI");
-		}
-		else if(pickFirstCell&&board[i][j]=='_');
-		{
-			
-		}
-		else if(isWhiteturn)
-		{
-			if((count[temp1][temp2]==1||count[temp1][temp2]==3)&&(temp1-2==i)&&temp2+2==j)
-			{
-				grid[temp1][temp2]='_';
-				grid[temp1-1][temp2+1]='_';
-				grid[i][j]='P';
-				pickFirstCell=true;
-				whiteToPlay=false;
-				whiteMustCapture=false;
-			}
-			else if((count[temp1][temp2]==2||count[temp1][temp2]==3)&&temp1-2==i&&temp2-2==j)
-			{
-				grid[temp1][temp2]='_';
-				grid[temp1-1][temp2-1]='_';
-				grid[i][j]='P';
-				pickFirstCell=true;
-				whiteToPlay=false;
-				whiteMustCapture=false;
-			}
-			else if((count[temp1][temp2]==5||count[temp1][temp2]==7)&&temp1-1==i&&temp2+1==j&&!whiteMustCapture)
-			{
-
-				grid[temp1][temp2]='_';
-				grid[i][j]='P';
-				pickFirstCell=true;
-				whiteToPlay=false;
-			}
-			else if((count[temp1][temp2]==6||count[temp1][temp2]==7)&&temp1-1==i&&temp2-1==j&&!whiteMustCapture)
-			{
-
-				grid[temp1][temp2]='_';
-				grid[i][j]='P';
-				pickFirstCell=true;
-				whiteToPlay=false;
-			}
-			else
-			{
-				pickFirstCell=true;	
-			}
-		}	
-		else if(!isWhiteturn)
-		{
-			if((count[temp1][temp2]==1||count[temp1][temp2]==3)&&(temp1+2==i)&&temp2+2==j)
-			{
-				grid[temp1][temp2]='_';
-				grid[temp1+1][temp2+1]='_';
-				grid[i][j]='p';
-				pickFirstCell=true;
-				whiteToPlay=true;
-				blackMustCapture=false;
-			}
-			else if((count[temp1][temp2]==2||count[temp1][temp2]==3)&&temp1+2==i&&temp2-2==j)
-			{
-				grid[temp1][temp2]='_';
-				grid[temp1+1][temp2-1]='_';
-				grid[i][j]='p';
-				pickFirstCell=true;
-				whiteToPlay=true;
-				blackMustCapture=false;
-			}
-			else if((count[temp1][temp2]==5||count[temp1][temp2]==7)&&temp1+1==i&&temp2+1==j&&!blackMustCapture)
-			{
-
-				board[temp1][temp2]='_';
-				board[i][j]='p';
-				pickFirstCell=true;
-			}
-			else if((count[temp1][temp2]==6||count[temp1][temp2]==7)&&temp1+1==i&&temp2-1==j&&!blackMustCapture)
-			{
-
-				board[temp1][temp2]='_';
-				board[i][j]='p';
-				pickFirstCell=true;
-			}
-			else
-			{
-				pickFirstCell=true;	
-			}
-		}*/
 	}
 	
 	
