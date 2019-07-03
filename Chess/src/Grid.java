@@ -14,6 +14,7 @@ public class Grid {
 	private char[][] board;
 	private boolean pickFirstCell;
 	private boolean isWhite;
+	private char promote;
 	private ArrayList<Integer> markedMoves;
 	private ArrayList<Integer> attackedSquares;
 	
@@ -44,7 +45,8 @@ public class Grid {
 	public Grid(String filename)
 	{
 		eps=-1;
-
+		promote=' ';
+		
 		WcastleK=true;
 		WcastleQ=true;
 		BcastleK=true;
@@ -69,6 +71,8 @@ public class Grid {
 	//PRINTS OUT YES initx inity laterx latery
 	public String isLegalMove(String s)
 	{
+		if(s.charAt(s.length()-1)=='#'||s.charAt(s.length()-1)=='+')
+			s=s.substring(0, s.length()-1);
 		char c0 = s.charAt(0);
 		char c1 = s.charAt(1);
 		
@@ -107,6 +111,13 @@ public class Grid {
 			{
 				char c2 = s.charAt(2);
 				char c3 = s.charAt(3);
+				char c4;
+				
+				if(s.charAt(s.length()-2)=='=')
+				{
+	 				promote=s.charAt(s.length()-1);
+ 				}
+				
 				
 				int w = ((int)c2-97);
 				int x = ((int)c0-97);
@@ -136,30 +147,7 @@ public class Grid {
 						}
 					}
 				}
-				
-				
-				/*for(int row=0;row<8;row++)
-				{
-					if(board[row][x]=='P'&&isWhite)
-					{
-						for(String r:getPawnMoves(true,row,x))
-						{
-							if(r.equals(t))
-							{
-								return "YES"+row+x+y+w;
-							}
-						}
-					}
-					else if(board[row][x]=='p'&&!isWhite)
-					{
-						System.out.println("BLACK PAWN!");
-						for(String r:getPawnMoves(false,row,x))
-						{
-							if(r.equals(t))
-								return "YES"+row+w+y+x;
-						}
-					}
-				}*/
+	
 				
 			}
 		}
@@ -223,15 +211,48 @@ public class Grid {
 			int w = Integer.parseInt(t.substring(6,7));
 			board[z][w]=board[x][y];
 			board[x][y]='_';
-			isWhite=!isWhite;
 			eps=-1;
+			if(isWhite)
+			{
+				if(x==6&&z==4&&board[z][w]=='P')
+				{
+					eps=w;
+				}
+				if(epsTrue)
+				{
+					board[z+1][w]='_';
+				}
+				if(promote!=' ')
+				{
+					board[z][w]=promote;
+				}
+			}
+			else
+			{
+				if(x==1&&z==3&&board[z][w]=='p')
+				{
+					eps=w;
+				}
+				if(epsTrue)
+				{
+					board[z-1][w]='_';
+					
+				}
+				if(promote!=' ')
+				{
+					board[z][w]=Character.toLowerCase(promote);
+				}
+			}
+			epsTrue=false;
+			promote=' ';
+			isWhite=!isWhite;
 		}
 	}
 	
 	
 	public void game(String s)
 	{
-		
+		Scanner kboard = new Scanner(System.in);
 		for(int i=1;s.indexOf(i+".")>-1;i++)
 		{
 			int a = s.indexOf(i+".");
@@ -247,11 +268,18 @@ public class Grid {
 				if(c>-1)
 				{
 					move(r.substring(0,c));
+					kboard.nextLine();
+					System.out.println(this);
+					
 					move(r.substring(c+1));
+					kboard.nextLine();
+					System.out.println(this);
 				}
 				else
 				{
 					move(r);
+					kboard.nextLine();
+					System.out.println(this);
 				}
 			}
 			else
@@ -265,14 +293,22 @@ public class Grid {
 				if(c>-1)
 				{
 					move(r.substring(0,c));
+					kboard.nextLine();
+					System.out.println(this);
+					
 					move(r.substring(c+1));
+					kboard.nextLine();
+					System.out.println(this);
 				}
 				else
 				{
 					move(r);
+					kboard.nextLine();
+					System.out.println(this);
 				}
 			}
 		}
+		kboard.close();
 	}
 	
 	
