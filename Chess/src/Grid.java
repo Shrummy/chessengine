@@ -574,83 +574,145 @@ public class Grid {
 	public ArrayList<String> getPawnMoves(boolean isWhite, int i, int j)
 	{
 		ArrayList<String> s=new ArrayList<String>();
-		//first move and white
-		if(i==6&&isWhite)
+		if(isWhite)
 		{
-			if(board[5][j]=='_')
+			//first two square move
+			if(i==6)
 			{
-				if(board[4][j]=='_')
-					s.add("4"+j);
+				if(board[5][j]=='_')
+				{
+					if(board[4][j]=='_')
+						s.add("4"+j);
+				}
 			}
-		}
-		//first move and black
-		else if(i==1&&!isWhite)
-		{
-			if(board[2][j]=='_')
+			//regular move (with promotion)
+			if(i>0&&board[i-1][j]=='_')
 			{
-				if(board[3][j]=='_')
-					s.add("3"+j);
+				if(i==1)
+				{
+					s.add((i-1)+""+j+"=Q");
+					s.add((i-1)+""+j+"=R");
+					s.add((i-1)+""+j+"=B");
+					s.add((i-1)+""+j+"=N");
+				}
+				else
+				{
+					s.add((i-1)+""+j);
+				}
 			}
+			//captures left (with promotion)
+			if(j>0&& i>0&& board[i-1][j-1]!='_'&&!Character.isUpperCase(board[i-1][j-1]))
+			{
+				if(i==1)
+				{
+					s.add((i-1)+""+(j-1)+"=Q");
+					s.add((i-1)+""+(j-1)+"=R");
+					s.add((i-1)+""+(j-1)+"=B");
+					s.add((i-1)+""+(j-1)+"=N");
+				}
+				else
+				{
+					s.add((i-1)+""+(j-1));
+				}
+			}
+			//captures right (with promotion)
+			if(j<7&& i>0 && board[i-1][j+1]!='_'&&!Character.isUpperCase(board[i-1][j+1]))
+			{
+				if(i==1)
+				{
+					s.add((i-1)+""+(j+1)+"=Q");
+					s.add((i-1)+""+(j+1)+"=R");
+					s.add((i-1)+""+(j+1)+"=B");
+					s.add((i-1)+""+(j+1)+"=N");
+				}
+				else
+				{
+					s.add((i-1)+""+(j+1));
+				}
+			}
+			//en passant left
+			if(i==3&&j>0&& board[2][j-1]=='_'&&eps==j-1)
+			{
+				s.add((i-1)+""+(j-1));
+				epsTrue=true;
+			}
+			//en passant right
+			
+			if(i==3&&j<7&& board[2][j+1]=='_'&&eps==j+1)
+			{
+				s.add((i-1)+""+(j+1));
+				epsTrue=true;
+			}
+			
 		}
-		
-		//regular move
-		if(i>0&&board[i-1][j]=='_'&&isWhite)
+		else
 		{
-			s.add((i-1)+""+j);
-		}
-		else if(i<7&&board[i+1][j]=='_'&&!isWhite)
-		{
-			s.add((i+1)+""+j);
-		}
-		
-		//captures left
-		if(j>0&& i>0&& board[i-1][j-1]!='_'&&(Character.isUpperCase(board[i-1][j-1])!=isWhite)&&isWhite)
-		{
-			s.add((i-1)+""+(j-1));
-		}
-		else if(j>0&& i<7&& board[i+1][j-1]!='_'&&(Character.isUpperCase(board[i+1][j-1])!=isWhite)&&!isWhite)
-		{
-			s.add((i+1)+""+(j-1));
-		}
-		
-		//captures right
-		if(j<7&& i>0 && board[i-1][j+1]!='_'&&(Character.isUpperCase(board[i-1][j+1])!=isWhite)&&isWhite)
-		{
-			s.add((i-1)+""+(j+1));
-		}
-		else if(j<7&& i<7 && board[i+1][j+1]!='_'&&(Character.isUpperCase(board[i+1][j+1])!=isWhite)&&!isWhite)
-		{
-			s.add((i+1)+""+(j+1));
-		}
-		
-		//en passant left
-		
-		if(i==3&&j>0&& board[2][j-1]=='_'&&eps==j-1&&isWhite)
-		{
-			s.add((i-1)+""+(j-1));
-			epsTrue=true;
-		}
-		else if(i==4&&j>0&& board[5][j-1]=='_'&&eps==j-1&&!isWhite)
-		{
-			s.add((i+1)+""+(j-1));
-			epsTrue=true;
-		}
-		
-		
-		//en passant right
-		
-		if(i==3&&j<7&& board[2][j+1]=='_'&&eps==j+1&&isWhite)
-		{
-			s.add((i-1)+""+(j+1));
-			epsTrue=true;
-		}
-		else if(i==4&&j<7&& board[5][j+1]=='_'&&eps==j+1&&!isWhite)
+			//first two square move
+			if(i==1)
+			{
+				if(board[2][j]=='_')
+				{
+					if(board[3][j]=='_')
+						s.add("3"+j);
+				}
+			}
+			//regular move (with promotion)
+			if(i<7&&board[i+1][j]=='_')
+			{
+				if(i==6)
+				{
+					s.add((i+1)+""+j+"=Q");
+					s.add((i+1)+""+j+"=R");
+					s.add((i+1)+""+j+"=B");
+					s.add((i+1)+""+j+"=B");
+				}
+				else
+				{
+					s.add((i+1)+""+j);
+				}
+			}
+			//captures left
+			if(j>0&& i<7&& board[i+1][j-1]!='_'&&Character.isUpperCase(board[i+1][j-1]))
+			{
+				if(i==6)
+				{
+					s.add((i+1)+""+(j-1)+"=Q");
+					s.add((i+1)+""+(j-1)+"=R");
+					s.add((i+1)+""+(j-1)+"=B");
+					s.add((i+1)+""+(j-1)+"=B");
+				}
+				else
+				{
+					s.add((i+1)+""+(j-1));
+				}
+			}
+			//captures right
+			if(j<7&& i>0 && board[i-1][j+1]!='_'&&Character.isUpperCase(board[i-1][j+1]))
+			{
+				if(i==6)
+				{
+					s.add((i+1)+""+(j+1)+"=Q");
+					s.add((i+1)+""+(j+1)+"=R");
+					s.add((i+1)+""+(j+1)+"=B");
+					s.add((i+1)+""+(j+1)+"=B");
+				}
+				else
+				{
+					s.add((i+1)+""+(j+1));
+				}
+			}
+			//en passant left
+			if(j<7&& i==4 && board[i+1][j+1]!='_'&&Character.isUpperCase(board[i+1][j+1]))
+			{
+				s.add((i+1)+""+(j+1));
+			}
+			//en passant right
+			if(i==4&&j<7&& board[5][j+1]=='_'&&eps==j+1)
 			{
 				s.add((i+1)+""+(j+1));
 				epsTrue=true;
 			}
-		
-		
+		}
 		
 		return s;	
 	}
