@@ -1,16 +1,11 @@
-import java.awt.Point;
-import java.awt.geom.Point2D;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import processing.core.PApplet;
-import processing.core.PImage;
-
 public class Grid {
-	private PImage[] images;
 	private char[][] board;
 	private boolean pickFirstCell;
 	private boolean isWhite;
@@ -25,7 +20,6 @@ public class Grid {
 	private int this1, this2;
 	private int temp1, temp2;
 	public Grid(){
-		images=new PImage[12];
 		markedMoves=new ArrayList<Integer>();
 		attackedSquares=new ArrayList<Integer>();
 		pickFirstCell=false;
@@ -350,47 +344,6 @@ public class Grid {
 	}
 	
 	
-	
-	public Grid(String filename, PApplet drawer){
-		images=new PImage[12];
-		
-		images[0]=drawer.loadImage("lib/pieces/black/blackpawn.png");
-		images[1]=drawer.loadImage("lib/pieces/black/blackknight.png");
-		images[2]=drawer.loadImage("lib/pieces/black/blackbishop.png");
-		images[3]=drawer.loadImage("lib/pieces/black/blackrook.png");
-		images[4]=drawer.loadImage("lib/pieces/black/blackqueen.png");
-		images[5]=drawer.loadImage("lib/pieces/black/blackking.png");
-		
-		images[6]=drawer.loadImage("lib/pieces/white/whitepawn.png");
-		images[7]=drawer.loadImage("lib/pieces/white/whiteknight.png");
-		images[8]=drawer.loadImage("lib/pieces/white/whitebishop.png");
-		images[9]=drawer.loadImage("lib/pieces/white/whiterook.png");
-		images[10]=drawer.loadImage("lib/pieces/white/whitequeen.png");
-		images[11]=drawer.loadImage("lib/pieces/white/whiteking.png");
-		
-		eps=-1;
-
-		WcastleK=true;
-		WcastleQ=true;
-		BcastleK=true;
-		BcastleQ=true;
-		
-		attackedSquares=new ArrayList<Integer>();
-		markedMoves=new ArrayList<Integer>();
-		pickFirstCell=true;
-		board=new char[8][8];
-		for(int i=0;i<8;i++)
-		{
-			for(int j=0;j<8;j++)
-			{
-				board[i][j]='_';
-			}
-		}
-		readData(filename,board);
-		isWhite=true;
-		over=0;
-	}
-	
 	public void readData (String filename, char[][] gameData) {
 		File dataFile = new File(filename);
 
@@ -439,128 +392,6 @@ public class Grid {
     }
 
 	
-	public void draw(PApplet marker, float x, float y, float width, float height) 
-	{	
-		float cellWidth=85;
-		float cellHeight=85;
-		marker.stroke(0);
-		
-
-		for(int row=0;row<board.length;row++)
-		{
-			for(int col=0;col<board[0].length;col++)
-			{
-				
-       			if(pickFirstCell&&row==temp1&&col==temp2&&isWhite==Character.isUpperCase(board[row][col]))
-       			{
-       				this1=temp1;
-       				this2=temp2;
-
-       			}
-       			
-       			if(board[row][col]!='_')
-				{
-       				if(Character.isUpperCase(board[row][col]))
-       					marker.fill(255);
-       				else
-       					marker.fill(0);
-					
-       				float xt=x+(col+0.5f)*cellWidth-32-10;
-       				float yt=y+(row+0.5f)*cellHeight-32-10;
-       				
-					if(board[row][col]=='p')
-						marker.image(images[0], xt, yt, cellWidth,cellHeight);
-					else if(board[row][col]=='n')
-						marker.image(images[1], xt, yt,cellWidth,cellHeight);
-					else if(board[row][col]=='b')
-						marker.image(images[2], xt, yt,cellWidth,cellHeight);
-					else if(board[row][col]=='r')
-						marker.image(images[3], xt, yt,cellWidth,cellHeight);
-					else if(board[row][col]=='q')
-						marker.image(images[4],xt,yt,cellWidth,cellHeight);
-					else if(board[row][col]=='k')
-						marker.image(images[5], xt, yt,cellWidth,cellHeight);
-					else if(board[row][col]=='P')
-						marker.image(images[6], xt, yt,cellWidth,cellHeight);
-					else if(board[row][col]=='N')
-						marker.image(images[7], xt, yt,cellWidth,cellHeight);
-					else if(board[row][col]=='B')
-						marker.image(images[8], xt, yt,cellWidth,cellHeight);
-					else if(board[row][col]=='R')
-						marker.image(images[9], xt, yt,cellWidth,cellHeight);
-					else if(board[row][col]=='Q')
-						marker.image(images[10], xt, yt,cellWidth,cellHeight);
-					else if(board[row][col]=='K')
-						marker.image(images[11], xt, yt,cellWidth,cellHeight);
-				}
-			
-			}
-			for(int i=0;i<markedMoves.size()-1;i++)
-			{
-				if(i%2==0)
-				{
-					int yc = markedMoves.get(i+1);
-					int xc = markedMoves.get(i);
-					marker.fill(240,230,140);
-					marker.ellipseMode(marker.CENTER);
-					marker.ellipse(x+(yc+0.5f)*cellWidth,y+(xc+0.5f)*cellHeight,cellWidth/5f,cellHeight/5f);
-				}
-			}
-		}	
-	}
-	public Point clickToIndex(Point p, float x, float y, float width, float height) 
-	{
-		float cellWidth=(float)width/(board[0].length);
-		float cellHeight=(float)height/board.length;
-		
-		int j = (int)((p.getX()-x)/cellWidth);
-		int k = (int)((p.getY()-y)/cellHeight);
-		if(0<=k && k<board.length && 0<=j && j<board[0].length)
-		{
-			for(int t=0;t<markedMoves.size()-1;t++)
-			{
-				if(t%2==0)
-				{
-					
-					if(k==markedMoves.get(t)&&j==markedMoves.get(t+1))
-					{
-						board[k][j]=board[this1][this2];
-						board[this1][this2]='_';
-						eps=-1;
-						if(isWhite)
-						{
-							if(this1==6&&k==4&&board[k][j]=='P')
-							{
-								eps=j;
-							}
-							if(epsTrue)
-							{
-								board[k+1][j]='_';
-							}
-							
-						}
-						else
-						{
-							if(this1==1&&k==3&&board[k][j]=='p')
-							{
-								eps=j;
-							}
-							if(epsTrue)
-							{
-								board[k-1][j]='_';
-							}
-						}
-						epsTrue=false;
-						isWhite=!isWhite;
-					}
-				}
-			}
-			markedMoves=new ArrayList<Integer>();
-			pickFirstCell=true;
-			return new Point(k,j);
-		}
-		return null;
-	}
 	
 	public ArrayList<String> getMoves(char c, boolean b, int i, int j)
 	{
