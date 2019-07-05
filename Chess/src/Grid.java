@@ -14,7 +14,6 @@ public class Grid {
 	private char[][] board;
 	private boolean pickFirstCell;
 	private boolean isWhite;
-	private char promote;
 	private ArrayList<Integer> markedMoves;
 	private ArrayList<Integer> attackedSquares;
 	
@@ -45,7 +44,6 @@ public class Grid {
 	public Grid(String filename)
 	{
 		eps=-1;
-		promote=' ';
 		
 		WcastleK=true;
 		WcastleQ=true;
@@ -81,19 +79,45 @@ public class Grid {
 		{
 			if(c1!='x')
 			{
+				boolean promote=false;
 				int x = ((int)c0-97);
 				int y=8-Integer.parseInt(c1+"");
+				String p="";
 				
-				String t = (10*y+x)+"";
+				if(s.charAt(s.length()-2)=='=')
+				{
+					p="="+s.charAt(s.length()-1);
+					promote=true;
+				}
+				
+				String t;
+				
+				if(y>0)
+				{
+					t = (10*y+x)+""+p;
+				}
+				else
+				{
+					t="0"+x+p;
+				}
+				
+				
+				
 				for(int row=0;row<8;row++)
 				{
 					if(board[row][x]=='P'&&isWhite)
 						{
 							for(String r:getPawnMoves(true,row,x))
 							{
-								
 								if(r.equals(t))
-									return "YES"+row+x+y+x;
+								{
+									if(t.charAt(t.length()-2)=='=')
+									{
+										return "YES"+row+x+y+x+"="+t.charAt(t.length()-1);
+									}
+									else
+										return "YES"+row+x+y+x;
+								}
 							}
 						}
 						else if(board[row][x]=='p'&&!isWhite)
@@ -101,7 +125,16 @@ public class Grid {
 							for(String r:getPawnMoves(false,row,x))
 							{
 								if(r.equals(t))
-									return "YES"+row+x+y+x;
+								{
+									if(promote)
+									{
+										return "YES"+row+x+y+x+"="+p;
+									}
+									else
+									{
+										return "YES"+row+x+y+x;
+									}
+								}
 							}
 						}
 				}
@@ -109,15 +142,10 @@ public class Grid {
 			//pawn captures
 			else
 			{
+				boolean promote=false;
 				char c2 = s.charAt(2);
 				char c3 = s.charAt(3);
-				char c4;
-				
-				if(s.charAt(s.length()-2)=='=')
-				{
-	 				promote=s.charAt(s.length()-1);
- 				}
-				
+				String p="";
 				
 				int w = ((int)c2-97);
 				int x = ((int)c0-97);
@@ -125,23 +153,33 @@ public class Grid {
 				
 				
 				
-				String t = (10*y+w)+"";
+				if(s.charAt(s.length()-2)=='=')
+				{
+					p="="+s.charAt(s.length()-1);
+					promote=true;
+				}
 				
-				
-				
+				String t=y+""+w+""+p;
 				
 				for(int row=0;row<8;row++)
 				{
 					for(int col=0;col<8;col++)
 					{
 				
-						if((board[row][col]+"").equalsIgnoreCase("P")&&Character.isUpperCase(board[row][col])==isWhite)
+						if((board[row][col]+"").equalsIgnoreCase("P"))
 						{
 							for(String r:getPawnMoves(isWhite,row,col))
 							{
 								if(r.equals(t)&&col==x)
 								{
-									return "YES"+row+col+y+w;
+									if(promote)
+									{
+										return "YES"+row+col+y+w+"="+p;
+									}
+									else
+									{
+										return "YES"+row+col+y+w;
+									}
 								}
 							}
 						}
@@ -176,8 +214,8 @@ public class Grid {
 				y=8-Integer.parseInt(c2+"");
 			}
 			
-			String t = (10*y+x)+"";
-			
+			String t=y+""+x;
+		
 			
 			for(int row=0;row<8;row++)
 			{
@@ -222,9 +260,9 @@ public class Grid {
 				{
 					board[z+1][w]='_';
 				}
-				if(promote!=' ')
+				if(s.charAt(s.length()-2)=='=')
 				{
-					board[z][w]=promote;
+					board[z][w]=s.charAt(s.length()-1);
 				}
 			}
 			else
@@ -238,13 +276,13 @@ public class Grid {
 					board[z-1][w]='_';
 					
 				}
-				if(promote!=' ')
+				if(s.charAt(s.length()-2)=='=')
 				{
-					board[z][w]=Character.toLowerCase(promote);
+					board[z][w]=Character.toLowerCase(s.charAt(s.length()-1));
 				}
 			}
 			epsTrue=false;
-			promote=' ';
+
 			isWhite=!isWhite;
 		}
 	}
@@ -664,7 +702,7 @@ public class Grid {
 					s.add((i+1)+""+j+"=Q");
 					s.add((i+1)+""+j+"=R");
 					s.add((i+1)+""+j+"=B");
-					s.add((i+1)+""+j+"=B");
+					s.add((i+1)+""+j+"=N");
 				}
 				else
 				{
@@ -679,7 +717,7 @@ public class Grid {
 					s.add((i+1)+""+(j-1)+"=Q");
 					s.add((i+1)+""+(j-1)+"=R");
 					s.add((i+1)+""+(j-1)+"=B");
-					s.add((i+1)+""+(j-1)+"=B");
+					s.add((i+1)+""+(j-1)+"=N");
 				}
 				else
 				{
@@ -687,14 +725,14 @@ public class Grid {
 				}
 			}
 			//captures right
-			if(j<7&& i>0 && board[i-1][j+1]!='_'&&Character.isUpperCase(board[i-1][j+1]))
+			if(j<7&& i>0 && board[i+1][j+1]!='_'&&Character.isUpperCase(board[i+1][j+1]))
 			{
 				if(i==6)
 				{
 					s.add((i+1)+""+(j+1)+"=Q");
 					s.add((i+1)+""+(j+1)+"=R");
 					s.add((i+1)+""+(j+1)+"=B");
-					s.add((i+1)+""+(j+1)+"=B");
+					s.add((i+1)+""+(j+1)+"=N");
 				}
 				else
 				{
@@ -702,9 +740,10 @@ public class Grid {
 				}
 			}
 			//en passant left
-			if(j<7&& i==4 && board[i+1][j+1]!='_'&&Character.isUpperCase(board[i+1][j+1]))
+			if(j>0&& i==4 && board[5][j-1]=='_'&&eps==j-1)
 			{
-				s.add((i+1)+""+(j+1));
+				s.add((i+1)+""+(j-1));
+				epsTrue=true;
 			}
 			//en passant right
 			if(i==4&&j<7&& board[5][j+1]=='_'&&eps==j+1)
@@ -713,7 +752,6 @@ public class Grid {
 				epsTrue=true;
 			}
 		}
-		
 		return s;	
 	}
 	
