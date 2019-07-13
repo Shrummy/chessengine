@@ -10,7 +10,7 @@ import processing.core.PApplet;
 
 
 public class DrawingSurface extends PApplet {
-	private Grid board;
+	/*private Grid board;
 	private int runCount;
 	private int speed;
 	private Point prevToggle;
@@ -41,7 +41,7 @@ public class DrawingSurface extends PApplet {
 		/*board.move("h5");
 		board.move("Bc4");
 		board.move("Rh7");
-		board.move("Qxf7");*/
+		board.move("Qxf7");
 		//size(0,0,PApplet.P3D);
 	}
 	
@@ -106,7 +106,7 @@ public class DrawingSurface extends PApplet {
 		} else if (keyCode == KeyEvent.VK_ENTER) {
 			//board.step();
 		}
-	}
+	}*/
 
 	
 }
