@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 /*
+ * STATUS:
+ * Castling working, but should only take in O-O instead of Kg8
+ * 
+ * 
  * 
  */
-
-
 
 public class Grid {
 	private char[][] board;
@@ -50,7 +52,7 @@ public class Grid {
 		over=0;
 	}
 	
-	public void getAttackedSquares(char[][]b)
+	public void getAttackedSquares()
 	{
 		isAttacking=true;
 		for(int i=0;i<8;i++)
@@ -64,21 +66,21 @@ public class Grid {
 		{
 			for(int j=0;j<8;j++)
 			{
-				if(b[i][j]!='_')
+				if(board[i][j]!='_')
 				{
-					if(Character.isUpperCase(b[i][j]))
+					if(Character.isUpperCase(board[i][j]))
 					{
 	
-						for(String f:getMoves(b[i][j],true,i,j))
+						for(String f:getMoves(board[i][j],true,i,j))
 						{
 							int c1 = Integer.parseInt(f.substring(0,1));
 							int c2 = Integer.parseInt(f.substring(1,2));
 							attackedSquaresW[c1][c2]=1;	
 						}
 					}
-					else if(Character.isLowerCase(b[i][j]))
+					else if(Character.isLowerCase(board[i][j]))
 					{
-						for(String f:getMoves(b[i][j],false,i,j))
+						for(String f:getMoves(board[i][j],false,i,j))
 						{
 							int c1 = Integer.parseInt(f.substring(0,1));
 							int c2 = Integer.parseInt(f.substring(1,2));
@@ -98,9 +100,9 @@ public class Grid {
 		{
 			for(int j=0;j<8;j++)
 			{
-				if(board[i][j]=='K'&&attackedSquaresB[i][j]==1)
+				if(board[i][j]=='K'&&attackedSquaresB[i][j]==1&&isWhite)
 					return true;
-				if(board[i][j]=='k'&&attackedSquaresW[i][j]==1)
+				if(board[i][j]=='k'&&attackedSquaresW[i][j]==1&&!isWhite)
 					return true;
 			}
 		}
@@ -261,6 +263,24 @@ public class Grid {
 		//anything else move
 		else
 		{
+			if(isWhite)
+			{
+				if(s.equals("O-O"))
+					s="Kg1";
+				else if(s.equals("O-O-O"))
+					s="Kc1";
+			}
+			else
+				{
+					if(s.equals("O-O"))
+					{
+						s="Kg8";
+					}
+					else if(s.equals("O-O-O"))
+						s="Kc8";
+				}
+			
+			
 			
 			int rt=-1, c=-1;
 			char c2;
@@ -273,6 +293,7 @@ public class Grid {
 				s=s.substring(0,s.indexOf('x'))+s.substring(s.indexOf('x')+1);
 			}
 			
+			c0=s.charAt(0);
 			c1 = s.charAt(1);
 			c2 = s.charAt(2);
 			
@@ -355,6 +376,9 @@ public class Grid {
 				}
 				board[z][w]=board[x][y];
 				board[x][y]='_';
+				
+				getAttackedSquares();
+				
 				if(isCheck(isWhite))
 				{
 					for(int i=0;i<8;i++)
@@ -375,6 +399,7 @@ public class Grid {
 			eps=-1;
 			if(isWhite)
 			{
+				//check if ep
 				if(x==6&&z==4&&board[z][w]=='P')
 				{
 					eps=w;
@@ -386,6 +411,31 @@ public class Grid {
 				if(s.charAt(s.length()-2)=='=')
 				{
 					board[z][w]=s.charAt(s.length()-1);
+				}
+				//castling
+				if(x==7&&y==0&&board[z][w]=='R'&&WcastleQ)
+				{
+					WcastleQ=false;
+				}
+				else if(x==7&&y==7&&board[z][w]=='R'&&WcastleK)
+				{
+					WcastleK=false;
+				}
+				else if(x==7&&y==4&&board[z][w]=='K'&&(WcastleK||WcastleQ))
+				{
+					if(z==7&&w==6)
+					{
+						board[7][7]='_';
+						board[7][5]='R';
+					}
+					else if(z==7&&w==2)
+					{
+						System.out.println("YEE");
+						board[7][0]='_';
+						board[7][3]='R';
+					}
+					WcastleK=false;
+					WcastleQ=false;
 				}
 			}
 			else
@@ -403,13 +453,38 @@ public class Grid {
 				{
 					board[z][w]=Character.toLowerCase(s.charAt(s.length()-1));
 				}
+				
+				//restrictions on castling
+				if(x==0&&y==0&&board[z][w]=='r'&&BcastleQ)
+				{
+					BcastleQ=false;
+				}
+				else if(x==0&&y==7&&board[z][w]=='r'&&BcastleK)
+				{
+					BcastleK=false;
+				}
+				else if(x==0&&y==4&&board[z][w]=='k'&&(BcastleK||BcastleQ))
+				{
+					if(z==0&&w==6)
+					{
+						board[0][7]='_';
+						board[0][5]='r';
+					}
+					else if(z==0&&w==2)
+					{
+						board[0][0]='_';
+						board[0][3]='r';
+					}
+					BcastleK=false;
+					BcastleQ=false;
+				}
 			}
 			epsTrue=false;
 			isWhite=!isWhite;
-			getAttackedSquares(board);
+			getAttackedSquares();
 			return true;
 		}
-		getAttackedSquares(board);
+		getAttackedSquares();
 		return false;
 	}
 	
@@ -434,10 +509,10 @@ public class Grid {
 					move(r.substring(0,c));
 					kboard.nextLine();
 					System.out.println(this);
-					
 					move(r.substring(c+1));
 					kboard.nextLine();
 					System.out.println(this);
+
 				}
 				else
 				{
@@ -935,6 +1010,23 @@ public class Grid {
 			
 			if(j<7&&(isAttacking||((board[i][j+1]=='_'||!Character.isUpperCase(board[i][j+1]))&&attackedSquaresB[i][j+1]==0)))
 				s.add(i+""+(j+1));
+		
+			if(WcastleQ)
+			{
+				if(board[7][1]=='_'&&board[7][2]=='_'&&board[7][3]=='_') //everything vacant
+				{
+					if(attackedSquaresB[7][4]==0&&attackedSquaresB[7][3]==0&&attackedSquaresB[7][2]==0)
+						s.add(i+""+(j-2));
+				}
+			}
+			if(WcastleK)
+			{
+				if(board[7][5]=='_'&&board[7][6]=='_') //everything vacant
+				{
+					if(attackedSquaresB[7][4]==0&&attackedSquaresB[7][5]==0&&attackedSquaresB[7][6]==0)
+						s.add(i+""+(j+2));
+				}
+			}
 		}
 		else
 		{
@@ -962,6 +1054,23 @@ public class Grid {
 			
 			if(j<7&&(isAttacking||((board[i][j+1]=='_'||Character.isUpperCase(board[i][j+1]))&&attackedSquaresW[i][j+1]==0)))
 				s.add(i+""+(j+1));
+			
+			if(BcastleQ)
+			{
+				if(board[0][1]=='_'&&board[0][2]=='_'&&board[0][3]=='_') //everything vacant
+				{
+					if(attackedSquaresW[0][4]==0&&attackedSquaresW[0][3]==0&&attackedSquaresW[0][2]==0)
+						s.add(i+""+(j-2));
+				}
+			}
+			if(BcastleK)
+			{
+				if(board[0][5]=='_'&&board[0][6]=='_') //everything vacant
+				{
+					if(attackedSquaresW[0][4]==0&&attackedSquaresW[0][5]==0&&attackedSquaresW[0][6]==0)
+						s.add(i+""+(j+2));
+				}
+			}
 		}
 		return s;
 	}
