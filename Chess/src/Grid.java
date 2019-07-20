@@ -59,8 +59,7 @@ public class Grid {
 			for(int j=0;j<8;j++)
 			{
 				attackedSquaresW[i][j]=0;
-				attackedSquaresB[i][j]=0;	
-				
+				attackedSquaresB[i][j]=0;		
 			}
 		for(int i=0;i<8;i++)
 		{
@@ -109,6 +108,55 @@ public class Grid {
 		return false;
 	}
 	
+	public boolean outOfCheck(boolean isWhite, int x, int y, int z, int w)
+	{
+		for(int i=0;i<8;i++)
+		{
+			for(int j=0;j<8;j++)
+			{
+				newBoard[i][j]=board[i][j];
+			}
+		}
+		board[z][w]=board[x][y];
+		board[x][y]='_';
+		if(eps>0)
+		{
+			if(isWhite)
+			{
+				if(x==3&&z==2&&w==eps)
+					board[z+1][w]='_';
+			}
+			else
+			{
+				if(x==4&&z==5&&w==eps)
+					board[z-1][w]='_';
+			}
+		}
+		
+		getAttackedSquares();
+		
+		if(isCheck(isWhite))
+		{
+			for(int i=0;i<8;i++)
+			{
+				for(int j=0;j<8;j++)
+				{
+					board[i][j]=newBoard[i][j];
+				}
+			}
+			return false;
+		}
+		for(int i=0;i<8;i++)
+		{
+			for(int j=0;j<8;j++)
+			{
+				board[i][j]=newBoard[i][j];
+			}
+		}
+		return true;
+	}
+	
+	
 	public int getMaterial(boolean isWhite)
 	{
 		int m=0;
@@ -134,6 +182,27 @@ public class Grid {
 		return m;
 	}
 	
+	/*public String isLegalMove(int x, int y, int z, int w)
+	{
+		if(board[x][y]=='_')
+			return "NOPE";
+		if(Character.isUpperCase(board[x][y]))&&isWhite)
+		{
+			
+		}
+		
+		
+		
+		return "";		
+	}*/
+
+	
+	
+	
+	
+	
+	
+	
 	
 	//PRINTS OUT YES initx inity laterx latery
 	public String isLegalMove(String s)
@@ -143,76 +212,41 @@ public class Grid {
 			s=s.substring(0, s.length()-1);
 		char c0 = s.charAt(0);
 		char c1 = s.charAt(1);
+		int x1=-1, y1=-1, x2=-1, y2=-1;
 		
 		//pawn moves
 		if(!Character.isUpperCase(c0))
 		{
 			if(c1!='x')
 			{
-				boolean promote=false;
 				int x = ((int)c0-97);
 				int y=8-Integer.parseInt(c1+"");
 				String p="";
 				
 				if(s.charAt(s.length()-2)=='=')
-				{
 					p="="+s.charAt(s.length()-1);
-					promote=true;
-				}
 				
-				String t;
-				
-				if(y>0)
-				{
-					t = (10*y+x)+""+p;
-				}
-				else
-				{
-					t="0"+x+p;
-				}
-				
-				
+				String t=y+""+x+""+p;
 				
 				for(int row=0;row<8;row++)
 				{
-					if(board[row][x]=='P'&&isWhite)
+					if((board[row][x]+"").equalsIgnoreCase("P")&&Character.isUpperCase(board[row][x])==isWhite)
+					{
+						for(String r:getPawnMoves(isWhite,row,x))
 						{
-							for(String r:getPawnMoves(true,row,x))
+							if(r.equals(t))
 							{
-								if(r.equals(t))
-								{
-									if(t.charAt(t.length()-2)=='=')
-									{
-										return "YES"+row+x+y+x+"="+t.charAt(t.length()-1);
-									}
-									else
-										return "YES"+row+x+y+x;
-								}
+								if(!isCheck(isWhite)||(isCheck(isWhite)&&outOfCheck(isWhite,row,x,y,x)))
+									return "YES"+row+x+y+x+""+p;
+										
 							}
 						}
-						else if(board[row][x]=='p'&&!isWhite)
-						{
-							for(String r:getPawnMoves(false,row,x))
-							{
-								if(r.equals(t))
-								{
-									if(promote)
-									{
-										return "YES"+row+x+y+x+"="+p;
-									}
-									else
-									{
-										return "YES"+row+x+y+x;
-									}
-								}
-							}
-						}
+					}
 				}
 			}
 			//pawn captures
 			else
 			{
-				boolean promote=false;
 				char c2 = s.charAt(2);
 				char c3 = s.charAt(3);
 				String p="";
@@ -224,10 +258,7 @@ public class Grid {
 				
 				
 				if(s.charAt(s.length()-2)=='=')
-				{
 					p="="+s.charAt(s.length()-1);
-					promote=true;
-				}
 				
 				
 				String t=y+""+w+""+p;
@@ -237,20 +268,14 @@ public class Grid {
 					for(int col=0;col<8;col++)
 					{
 				
-						if((board[row][col]+"").equalsIgnoreCase("P"))
+						if((board[row][col]+"").equalsIgnoreCase("P")&&Character.isUpperCase(board[row][col])==isWhite)
 						{
 							for(String r:getPawnMoves(isWhite,row,col))
 							{
 								if(r.equals(t)&&col==x)
 								{
-									if(promote)
-									{
-										return "YES"+row+col+y+w+"="+p;
-									}
-									else
-									{
-										return "YES"+row+col+y+w;
-									}
+									if(!isCheck(isWhite)||isCheck(isWhite)&&outOfCheck(isWhite,row,col,y,w))
+										return "YES"+row+col+y+w+""+p;
 								}
 							}
 						}
@@ -339,8 +364,10 @@ public class Grid {
 							if(r.equals(t))
 							{
 								if((rt>-1&&rt==row||rt==-1)&&(c>-1&&c==col||c==-1))
-									return "YES"+row+col+y+x;
-								
+								{
+									if(!isCheck(isWhite)||isCheck(isWhite)&&outOfCheck(isWhite,row,col,y,x))
+										return "YES"+row+col+y+x;
+								}
 							}
 						}
 					}
@@ -367,35 +394,11 @@ public class Grid {
 			
 			if(isCheck(isWhite))
 			{
-				for(int i=0;i<8;i++)
-				{
-					for(int j=0;j<8;j++)
-					{
-						newBoard[i][j]=board[i][j];
-					}
-				}
-				board[z][w]=board[x][y];
-				board[x][y]='_';
-				
-				getAttackedSquares();
-				
-				if(isCheck(isWhite))
-				{
-					for(int i=0;i<8;i++)
-					{
-						for(int j=0;j<8;j++)
-						{
-							board[i][j]=newBoard[i][j];
-						}
-					}
+				if(!outOfCheck(isWhite,x,y,z,w));
 					return false;
-				}
 			}
-			else
-			{
-				board[z][w]=board[x][y];
-				board[x][y]='_';
-			}
+			board[z][w]=board[x][y];
+			board[x][y]='_';
 			eps=-1;
 			if(isWhite)
 			{
@@ -430,7 +433,6 @@ public class Grid {
 					}
 					else if(z==7&&w==2)
 					{
-						System.out.println("YEE");
 						board[7][0]='_';
 						board[7][3]='R';
 					}
@@ -487,6 +489,7 @@ public class Grid {
 		getAttackedSquares();
 		return false;
 	}
+
 	
 	
 	public void game(String s)
@@ -1074,16 +1077,26 @@ public class Grid {
 		}
 		return s;
 	}
-		
-	
-	
-	
-	public char getPos(int row,int col)
-	{
-		return board[row][col];
-	}
 
-	
+
+	/*public void getLegalMoves(boolean isWhite)
+	{
+		for(int row=0;row<8;row++)
+		{
+			for(int col=0;col<8;col++)
+			{
+				char c = board[row][col];
+				if(c!='_'&&Character.isUpperCase(c)==isWhite)
+				{
+					for(String t:getMoves(c,isWhite,row,col))
+					{
+						if(isLegalMove(t).substring(0,3).equals("YES"))
+							System.out.println(c+""+row+""+col+" "+t);
+					}
+				}
+			}
+		}
+	}*/
 	
 	
 	
@@ -1100,12 +1113,13 @@ public class Grid {
 		return s;
 	}
 	
-	public int[][] getAW(){
-		return attackedSquaresW;
-	}
-	
-	public int[][] getAB(){
-		return attackedSquaresB;
+	public void setUP(boolean isWhite, boolean wk, boolean wq, boolean bk, boolean bq)
+	{
+		this.isWhite=isWhite;
+		WcastleK=wk;
+		WcastleQ=wq;
+		BcastleK=bk;
+		BcastleQ=wq;
 	}
 	
 }
